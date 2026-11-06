@@ -5,6 +5,3 @@ resources:
   - namespace.yaml
   - service-a.yaml
   - service-b.yaml
-  - nginx-configmap.yaml
-  - nginx-daemonset.yaml
-  - nginx-service.yaml

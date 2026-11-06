@@ -52,8 +52,3 @@ variable "cluster_admin_principal_arns" {
   description = "IAM user/role ARN-ek, amelyek cluster admin jogot kapnak (access entry)"
   type        = set(string)
 }
-
-variable "nlb_ingress_cidrs" {
-  description = "Honnan érhető el az NLB a 80-as porton"
-  type        = list(string)
-}

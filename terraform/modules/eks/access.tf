@@ -1,5 +1,5 @@
 # Access entry: felveszi az IAM principalt (itt: a Terraformot futtató IAM usert) a cluster
-# hozzáférési listájára. Enélkül a kubectl és a Helm provider "Unauthorized" hibát kapna.
+# hozzáférési listájára. Enélkül a kubectl "Unauthorized" hibát kapna.
 # A node group szerepéhez az EKS magától létrehozza a saját access entryt.
 resource "aws_eks_access_entry" "admin" {
   for_each = var.cluster_admin_principal_arns

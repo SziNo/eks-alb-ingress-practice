@@ -8,7 +8,6 @@ TAG="${1:-1.0.0}"
 REGION="$(terraform -chdir=terraform output -raw region)"
 CLUSTER="$(terraform -chdir=terraform output -raw cluster_name)"
 ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
-SG_ID="$(terraform -chdir=terraform output -raw nlb_security_group_id)"
 # A repók címe: <regiszter>/<cluster_name>/<szolgáltatás>
 REPO_BASE="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/${CLUSTER}"
 
@@ -35,21 +34,7 @@ images:
 - name: service-b
   newName: ${REPO_BASE}/service-b
   newTag: "${TAG}"
-
-# Az NLB security group ID beírása a Service annotációjába (strategic merge patch).
-# Az ID minden terraform apply után más, ezért nem lehet a base-ben.
-patches:
-- target:
-    kind: Service
-    name: nginx-proxy
-  patch: |-
-    apiVersion: v1
-    kind: Service
-    metadata:
-      name: nginx-proxy
-      annotations:
-        service.beta.kubernetes.io/aws-load-balancer-security-groups: ${SG_ID}
 EOF
 
-echo "Generálva: ${OVERLAY_DIR}/kustomization.yaml (tag: ${TAG}, SG: ${SG_ID})"
+echo "Generálva: ${OVERLAY_DIR}/kustomization.yaml (tag: ${TAG})"
 echo "Ellenőrzés: kubectl kustomize ${OVERLAY_DIR}"

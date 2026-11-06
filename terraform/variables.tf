@@ -68,17 +68,6 @@ variable "node_max_size" {
   type        = number
 }
 
-variable "lb_controller_chart_version" {
-  description = "Az aws-load-balancer-controller Helm chart verziója; a 3.x óta megegyezik a controller verziójával, és a modules/lb-controller/iam_policy.json-nak ehhez kell illeszkednie. Ennek marad alapértéke, mert a policy JSON-hoz kötődik, vagyis a kód része."
-  type        = string
-  default     = "3.6.2"
-}
-
-variable "nlb_ingress_cidrs" {
-  description = "Honnan érhető el az NLB a 80-as porton"
-  type        = list(string)
-}
-
 variable "ecr_image_tag_mutability" {
   description = "MUTABLE: ugyanaz a tag felülírható (gyakorláshoz); IMMUTABLE: egy tag csak egyszer tölthető fel (élesben ajánlott)"
   type        = string

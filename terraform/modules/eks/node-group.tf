@@ -1,6 +1,6 @@
 # Launch template a node-oknak. Azért kell, hogy a node-okra a SAJÁT node security groupunk
 # kerüljön: launch template nélkül az EKS a saját, automatikusan létrehozott cluster SG-jét
-# tenné rájuk, és a security-groups.tf szabályai (pl. az NLB forgalom) nem érvényesülnének.
+# tenné rájuk, és a security-groups.tf szabályai nem érvényesülnének.
 # AMI-t és instance típust itt nem adunk meg: az AMI-t az EKS választja az ami_type alapján,
 # az instance típus a node groupon van.
 resource "aws_launch_template" "node" {
@@ -17,7 +17,6 @@ resource "aws_launch_template" "node" {
     # névtérben futnak, a node-hoz képest +1 ugrásra, ezért 1-es limitnél NEM érik el az IMDS-t,
     # így a node szerep kulcsait sem: minden podnak saját szerepe legyen (IRSA), vagy semmi.
     # A hostNetwork-ön futó rendszerpodok (pl. a VPC CNI) továbbra is elérik, nekik kell.
-    # Az LB Controllernek nem kell IMDS: IRSA-t használ, a régiót és a vpcId-t a Helm értékekben kapja.
     http_put_response_hop_limit = 1
   }
 
@@ -50,7 +49,7 @@ resource "aws_eks_node_group" "this" {
     max_size     = var.node_max_size
   }
 
-  # Frissítéskor egyszerre legfeljebb 1 node legyen nem elérhető (a DaemonSet nginx-ből így mindig marad)
+  # Frissítéskor egyszerre legfeljebb 1 node legyen nem elérhető
   update_config {
     max_unavailable = 1
   }

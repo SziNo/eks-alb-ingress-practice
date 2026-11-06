@@ -29,8 +29,8 @@ resource "aws_eks_addon" "before_compute" {
   resolve_conflicts_on_update = "OVERWRITE"
 }
 
-# EKS managed addon a node group után: coredns (cluster DNS, ezzel oldja fel az nginx a
-# service-a.demo.svc.cluster.local neveket).
+# EKS managed addon a node group után: coredns (cluster DNS, ezzel oldhatók fel a
+# service-a.demo.svc.cluster.local típusú nevek).
 resource "aws_eks_addon" "after_compute" {
   for_each = local.addons_after_compute
 

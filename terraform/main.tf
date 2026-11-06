@@ -2,7 +2,7 @@
 # a Terraform a hivatkozásokból (függőségekből) dönti el.
 
 # ECR repók a két alkalmazás image-ének (for_each a szolgáltatás nevével).
-# A repók neve <cluster_name>/<szolgáltatás>, pl. szino-nginx-proxy-demo/service-a.
+# A repók neve <cluster_name>/<szolgáltatás>, pl. szino-alb-practice/service-a.
 # Független a többitől, ezért a Terraform a VPC-vel párhuzamosan hozza létre.
 module "ecr" {
   source = "./modules/ecr"

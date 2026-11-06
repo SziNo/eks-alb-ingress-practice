@@ -8,8 +8,8 @@ terraform {
   # Remote state S3-ban (most NINCS bekapcsolva, a state helyben van: terraform/terraform.tfstate).
 
   # A bucketet ELŐRE, kézzel kell létrehozni, mert az "init" már keresi, mielőtt bármit létrehozna:
-  #   aws s3 mb s3://nginx-proxy-demo-tfstate-362099375729 --region eu-west-1
-  #   aws s3api put-bucket-versioning --bucket nginx-proxy-demo-tfstate-362099375729 \
+  #   aws s3 mb s3://alb-practice-tfstate-362099375729 --region eu-west-1
+  #   aws s3api put-bucket-versioning --bucket alb-practice-tfstate-362099375729 \
   #     --versioning-configuration Status=Enabled     # ajánlott: egy elrontott state visszaállítható
   # (A nyilvános hozzáférés tiltása és a titkosítás az új bucketeken alapból be van kapcsolva.)
 
@@ -20,8 +20,8 @@ terraform {
   # (régebben ehhez DynamoDB tábla kellett).
 
   # backend "s3" {
-  #   bucket       = "nginx-proxy-demo-tfstate-362099375729"
-  #   key          = "eks-nginx-proxy/terraform.tfstate"
+  #   bucket       = "alb-practice-tfstate-362099375729"
+  #   key          = "eks-alb-ingress-practice/terraform.tfstate"
   #   region       = "eu-west-1"
   #   encrypt      = true
   #   use_lockfile = true

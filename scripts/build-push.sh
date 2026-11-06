@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Mindkét image buildelése linux/amd64-re és feltöltése az ECR-be.
-# A repók neve <cluster_name>/<szolgáltatás>, pl. szino-nginx-proxy-demo/service-a.
+# A repók neve <cluster_name>/<szolgáltatás>, pl. szino-alb-practice/service-a.
 # Használat: ./scripts/build-push.sh 1.0.0
 set -euo pipefail
 

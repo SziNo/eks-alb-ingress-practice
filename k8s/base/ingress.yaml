@@ -1,0 +1,32 @@
+# Az útválasztás a régi nginx ConfigMap location blokkjai helyett. Ezt az objektumot a Traefik
+# olvassa (az ingressClassName alapján az övé), és a szabályokból állítja össze a saját
+# routereit; a podok IP-jeit közvetlenül a Service-ek EndpointSlice-aiból veszi.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: demo
+  namespace: demo
+spec:
+  # Az IngressClass neve (a Terraform traefik modulja hozza létre, nem alapértelmezett):
+  # enélkül egyik controller sem venné magára az Ingresst
+  ingressClassName: traefik
+  rules:
+    # Nincs host mező: bármilyen Host fejléccel (pl. az NLB DNS nevével) érkező kérésre érvényes
+    - http:
+        paths:
+          # Prefix: /api/sa és minden alatta lévő útvonal (/api/sa/x), de /api/saxyz nem.
+          # Átírás nincs: a teljes útvonal (/api/sa) megy tovább, és a Flask app pont erre figyel.
+          - path: /api/sa
+            pathType: Prefix
+            backend:
+              service:
+                name: service-a
+                port:
+                  number: 80 # a Service portja, NEM a konténeré (8080; azt a targetPort köti össze)
+          - path: /api/sb
+            pathType: Prefix
+            backend:
+              service:
+                name: service-b
+                port:
+                  number: 80

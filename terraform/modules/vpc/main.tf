@@ -21,7 +21,7 @@ resource "aws_vpc" "this" {
   }
 }
 
-# Internet gateway: ezen keresztül éri el a publikus subnet az internetet.
+# Internet gateway: ezen keresztül éri el a publikus subnet az internetet (és az internet az NLB-t).
 resource "aws_internet_gateway" "this" {
   vpc_id = aws_vpc.this.id
 
@@ -30,7 +30,10 @@ resource "aws_internet_gateway" "this" {
   }
 }
 
-# Publikus subnetek AZ-nként: ide kerül a NAT gateway.
+# Publikus subnetek AZ-nként: ide kerül a NAT gateway és az internet felé néző NLB.
+# A kubernetes.io/role/elb tag alapján választja ezeket az AWS Load Balancer Controller
+# internet-facing load balancerhez (AZ-nként egy taggelt subnetet keres; tag nélkül
+# "unable to resolve at least one subnet" hibával nem jön létre az NLB).
 resource "aws_subnet" "public" {
   for_each = local.public_subnets
 
@@ -38,16 +41,19 @@ resource "aws_subnet" "public" {
   availability_zone = each.key
   cidr_block        = each.value
   # Nincs itt olyan gép, aminek automatikusan publikus IP kellene: a node-ok a privát
-  # subnetekben vannak, a NAT gateway saját EIP-t kap.
+  # subnetekben vannak, a NAT gateway saját EIP-t kap, az NLB a saját címeit kezeli.
   # A true csak felesleges kockázat lenne: egy ide indított EC2 azonnal elérhető lenne az internetről.
   map_public_ip_on_launch = false
 
   tags = {
-    Name = "${var.name}-public-${each.key}"
+    Name                     = "${var.name}-public-${each.key}"
+    "kubernetes.io/role/elb" = "1"
   }
 }
 
 # Privát subnetek AZ-nként: itt futnak a node-ok és a podok, kívülről közvetlenül nem érhetők el.
+# A kubernetes.io/role/internal-elb tag a belső (scheme: internal) load balancerekhez jelöli ki
+# őket. Most nincs belső LB, de a tag nélkül egy későbbi belső NLB nem találna subnetet.
 resource "aws_subnet" "private" {
   for_each = local.private_subnets
 
@@ -56,7 +62,8 @@ resource "aws_subnet" "private" {
   cidr_block        = each.value
 
   tags = {
-    Name = "${var.name}-private-${each.key}"
+    Name                              = "${var.name}-private-${each.key}"
+    "kubernetes.io/role/internal-elb" = "1"
   }
 }
 

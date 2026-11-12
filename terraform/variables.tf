@@ -68,6 +68,33 @@ variable "node_max_size" {
   type        = number
 }
 
+variable "nlb_ingress_cidrs" {
+  description = "Honnan érhető el az NLB a 80-as porton (CIDR lista); nyilvános szolgáltatásnál [\"0.0.0.0/0\"]"
+  type        = list(string)
+
+  validation {
+    condition     = length(var.nlb_ingress_cidrs) > 0 && alltrue([for c in var.nlb_ingress_cidrs : can(cidrhost(c, 0))])
+    error_message = "Legalább egy érvényes CIDR kell (pl. 1.2.3.4/32)."
+  }
+}
+
+variable "ingress_controller_replicas" {
+  description = "A Traefik podok száma (legalább 2)"
+  type        = number
+}
+
+variable "lb_controller_chart_version" {
+  description = "Az aws-load-balancer-controller Helm chart verziója; a 3.x óta megegyezik a controller verziójával, és a modules/lb-controller/iam_policy.json-nak ehhez kell illeszkednie. Ennek marad alapértéke, mert a policy JSON-hoz kötődik, vagyis a kód része."
+  type        = string
+  default     = "3.6.2"
+}
+
+variable "traefik_chart_version" {
+  description = "A traefik Helm chart verziója (a 42.3.1 a Traefik v3.7.17-et telepíti; a 2026-11-10-i 42.3.2 helyett, mert egy friss kiadásnak érdemes egy-két hetet hagyni). Ennek marad alapértéke, mert a Helm értékek (modules/traefik) ehhez a chart verzióhoz készültek, vagyis a kód része."
+  type        = string
+  default     = "42.3.1"
+}
+
 variable "ecr_image_tag_mutability" {
   description = "MUTABLE: ugyanaz a tag felülírható (gyakorláshoz); IMMUTABLE: egy tag csak egyszer tölthető fel (élesben ajánlott)"
   type        = string

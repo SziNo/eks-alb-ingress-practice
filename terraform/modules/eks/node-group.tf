@@ -17,6 +17,7 @@ resource "aws_launch_template" "node" {
     # névtérben futnak, a node-hoz képest +1 ugrásra, ezért 1-es limitnél NEM érik el az IMDS-t,
     # így a node szerep kulcsait sem: minden podnak saját szerepe legyen (IRSA), vagy semmi.
     # A hostNetwork-ön futó rendszerpodok (pl. a VPC CNI) továbbra is elérik, nekik kell.
+    # Az LB Controllernek nem kell IMDS: IRSA-t használ, a régiót és a vpcId-t a Helm értékekben kapja.
     http_put_response_hop_limit = 1
   }
 

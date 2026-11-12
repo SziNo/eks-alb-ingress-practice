@@ -52,3 +52,13 @@ variable "cluster_admin_principal_arns" {
   description = "IAM user/role ARN-ek, amelyek cluster admin jogot kapnak (access entry)"
   type        = set(string)
 }
+
+variable "nlb_ingress_cidrs" {
+  description = "Honnan érhető el az NLB a 80-as porton (CIDR lista)"
+  type        = list(string)
+}
+
+variable "nlb_target_ports" {
+  description = "Az NLB célportjai a podokon (név => port), pl. a forgalmi és a health check port; ezekre nyit szabályt az NLB SG és a node SG között"
+  type        = map(number)
+}

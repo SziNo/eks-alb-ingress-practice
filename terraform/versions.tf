@@ -2,7 +2,7 @@
 # A "~>" operátor a főverzión belül engedi a frissítést (pl. ~> 6.0 = 6.x, de 7.0 már nem),
 # a pontos verziót a "terraform init" után a .terraform.lock.hcl rögzíti (ezt commitold!).
 terraform {
-  # 1.6: a README is ezt írja elő; az itt használt nyelvi elemek (for_each, optional) ezzel mind működnek
+  # 1.6: a README is ezt írja elő; az itt használt nyelvi elemek (for_each, optional, precondition) ezzel mind működnek
   required_version = ">= 1.6"
 
   # Remote state S3-ban (most NINCS bekapcsolva, a state helyben van: terraform/terraform.tfstate).
@@ -34,6 +34,14 @@ terraform {
     aws = {
       source  = "hashicorp/aws"
       version = "~> 6.0"
+    }
+
+    # Helm provider: az AWS Load Balancer Controller és a Traefik telepítése.
+    # 3.x: ehhez kell az új szintaxis (kubernetes = { ... }, set = [ ... ]); a 2.x nem ismeri,
+    # a régi blokk szintaxist pedig a 3.x nem fogadja el.
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 3.0"
     }
 
     # TLS provider: csak egy data source-hoz kell, amely kiolvassa az EKS OIDC végpontjának

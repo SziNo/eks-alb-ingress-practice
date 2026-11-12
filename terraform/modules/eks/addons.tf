@@ -30,7 +30,8 @@ resource "aws_eks_addon" "before_compute" {
 }
 
 # EKS managed addon a node group után: coredns (cluster DNS, ezzel oldhatók fel a
-# service-a.demo.svc.cluster.local típusú nevek).
+# service-a.demo.svc.cluster.local típusú nevek; a Traefik viszont nem DNS-t használ, hanem
+# közvetlenül az EndpointSlice-okból veszi a pod IP-ket).
 resource "aws_eks_addon" "after_compute" {
   for_each = local.addons_after_compute
 

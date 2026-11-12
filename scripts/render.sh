@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Legenerálja a helyi overlay-t (k8s/overlays/local/kustomization.yaml) a Terraform
 # kimenetéből. A base (k8s/base/) érintetlen marad, ezért a szkript akárhányszor futtatható.
+# Csak az image címeket cseréli: az NLB security group ID-ját már a Terraform írja közvetlenül
+# a Traefik Service annotációjába (modules/traefik), ezért itt nincs patch.
 # Használat: ./scripts/render.sh 1.0.0
 set -euo pipefail
 

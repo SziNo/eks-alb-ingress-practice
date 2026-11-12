@@ -23,7 +23,7 @@ module "vpc" {
   subnets  = var.subnets
 }
 
-# EKS cluster: IAM szerepek, security groupok, cluster, addonok,
+# EKS cluster: IAM szerepek, security groupok (az NLB-é is), cluster, addonok,
 # managed node group, OIDC provider és admin access entry.
 module "eks" {
   source = "./modules/eks"
@@ -41,7 +41,44 @@ module "eks" {
   node_max_size       = var.node_max_size
 
   endpoint_public_access_cidrs = var.cluster_endpoint_public_access_cidrs
+  nlb_ingress_cidrs            = var.nlb_ingress_cidrs
+  nlb_target_ports             = local.ingress_controller_ports
 
   # Aki a Terraformot futtatja (IAM user), cluster admin lesz
   cluster_admin_principal_arns = [data.aws_caller_identity.current.arn]
+}
+
+# AWS Load Balancer Controller: IRSA szerep + Helm release. Ez hozza létre az NLB-t
+# a Traefik LoadBalancer Service-e alapján.
+module "lb_controller" {
+  source = "./modules/lb-controller"
+
+  cluster_name      = module.eks.cluster_name
+  region            = var.region
+  vpc_id            = module.vpc.vpc_id
+  oidc_provider_arn = module.eks.oidc_provider_arn
+  oidc_provider_url = module.eks.oidc_provider_url
+  chart_version     = var.lb_controller_chart_version
+
+  # A Helm release csak akkor induljon, ha az EKS modul MINDEN eleme kész: a node group
+  # (különben a controller podjai nem tudnak elindulni), az admin access entry (különben a
+  # Helm provider nem jogosult telepíteni) és a 9443-as webhook szabály.
+  depends_on = [module.eks]
+}
+
+# Traefik Ingress controller: Deployment + LoadBalancer Service (NLB annotációkkal) + IngressClass.
+module "traefik" {
+  source = "./modules/traefik"
+
+  chart_version         = var.traefik_chart_version
+  replicas              = var.ingress_controller_replicas
+  ports                 = local.ingress_controller_ports
+  load_balancer_name    = local.nlb_name
+  nlb_security_group_id = module.eks.nlb_security_group_id
+
+  # Létrehozáskor: a Service csak akkor jöhet létre, ha az LB Controller (és a webhookja) fut.
+  # Lebontáskor (fordított sorrend): ELŐBB a Traefik release törlődik, és amíg a Helm a Service
+  # törlésére vár, az LB Controller még fut, így le tudja bontani az NLB-t. Ha az LB Controller
+  # törlődne előbb, az NLB gazdátlanul ott maradna, és a destroy elakadna az NLB SG-n és a VPC-n.
+  depends_on = [module.lb_controller]
 }

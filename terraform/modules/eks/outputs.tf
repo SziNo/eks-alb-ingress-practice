@@ -4,12 +4,12 @@ output "cluster_name" {
 }
 
 output "cluster_endpoint" {
-  description = "A Kubernetes API címe"
+  description = "A Kubernetes API címe (a Helm provider használja)"
   value       = aws_eks_cluster.this.endpoint
 }
 
 output "cluster_certificate_authority_data" {
-  description = "A cluster CA tanúsítványa base64-ben"
+  description = "A cluster CA tanúsítványa base64-ben (a Helm provider használja)"
   value       = aws_eks_cluster.this.certificate_authority[0].data
 }
 
@@ -31,6 +31,11 @@ output "cluster_security_group_id" {
 output "node_security_group_id" {
   description = "A node-ok security groupja"
   value       = aws_security_group.node.id
+}
+
+output "nlb_security_group_id" {
+  description = "Az NLB security groupja (a Traefik modul a Service annotációjába írja)"
+  value       = aws_security_group.nlb.id
 }
 
 output "node_role_arn" {

@@ -10,7 +10,7 @@ data "tls_certificate" "oidc" {
 }
 
 # IAM OIDC provider az IRSA-hoz (IAM Roles for Service Accounts): ezzel bízik meg az IAM a
-# cluster által kiadott ServiceAccount tokenekben, így egy pod saját
+# cluster által kiadott ServiceAccount tokenekben, így egy pod (pl. az LB Controller) saját
 # IAM szerepet vehet fel ahelyett, hogy a node szerep jogait használná.
 resource "aws_iam_openid_connect_provider" "this" {
   url             = local.oidc_issuer
